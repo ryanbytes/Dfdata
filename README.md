@@ -1,16 +1,19 @@
 # Dfdata
 
-Public data feed for the Dalit Finder Android app.
+Public read-only distribution feed for the Dalit Finder Android app.
 
-This repository intentionally contains public, source-backed data and the minimal refresh tooling needed to reproduce the feed. The Android application source and Google Play Billing implementation live separately in the private `ryanbytes/Dalit-finder` repository.
+This repository intentionally contains **only sanitized public output** needed by the free application. It must not contain collector code, ATS source configuration, historical job-posting observations, scoring internals, entity-resolution state, or other commercial/private data.
 
-## Feed
+The Android application, collector, matching logic, Google Play Billing implementation, and accumulated private intelligence history live in the private `ryanbytes/Dalit-finder` repository.
 
-- `feed/v1/companies.json` — matched company/event feed used by the app
+## Public feed
+
+- `feed/v1/companies.json` — sanitized company/event records used by the free app
 - `feed/v1/companies.json.gz` — compressed copy
-- `feed/v1/coverage.json` — 50 states + DC source coverage/status
-- `feed/v1/stats.json` — generation statistics
-- `state/ats_history.json` — observed foreign ATS postings used to preserve first/last-seen dates
+- `feed/v1/coverage.json` — 50 states + DC coverage/status metadata
+- `feed/v1/stats.json` — public generation statistics
+
+The public feed may expose basic facts such as company name, layoff event, approximate WARN location, evidence rating, affected-worker count when available, source links, and the existence/country of overlapping foreign activity. It must not expose the retained job-posting history or internal matching evidence that creates the paid research product.
 
 ## Evidence policy
 
@@ -18,6 +21,6 @@ Automated matching is capped at `POSSIBLE`. A U.S. WARN filing plus foreign job-
 
 A missing record is never presented as proof that no layoff occurred. WARN publication practices and historical coverage vary by jurisdiction.
 
-## Refresh
+## Publishing
 
-The feed refreshes every six hours with GitHub Actions and only commits when generated data changes.
+`Dfdata` is a distribution target, not the collector. Sanitized exports are generated from private state in `ryanbytes/Dalit-finder/public-export/` and then published here. Never add private-history or collector directories to this repository.

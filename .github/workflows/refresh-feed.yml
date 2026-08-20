@@ -1,0 +1,49 @@
+name: Refresh Dalit Finder public feed
+
+on:
+  schedule:
+    - cron: '17 */6 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'pipeline/**'
+      - '.github/workflows/refresh-feed.yml'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: dfdata-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Refresh nationwide feed
+        run: python pipeline/refresh_feed.py
+
+      - name: Publish only material changes
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add feed state
+          if git diff --cached --quiet; then
+            echo 'No material feed changes.'
+            exit 0
+          fi
+          git commit -m 'Refresh nationwide feed [skip ci]'
+          git push
